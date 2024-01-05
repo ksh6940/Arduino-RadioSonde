@@ -8,6 +8,6 @@
 ## Algorithms
 ### When the MQ135 gas sensor and the built-in sensor of the Arduino Nano 33 BLE SNESE measure the data values, it is saved as a CSV file on an SD card.
 
-## Modify
-### 수정 사항이 있다면 아래 메일로 수정 내용을 보내주세요.
+## Other matters
+### If you have any questions, please send them to the email below.
 → gsh6940@naver.com (or makeplayer12@gmail.com)
