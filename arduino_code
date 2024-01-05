@@ -1,0 +1,108 @@
+#include <Arduino_HTS221.h>
+#include <Arduino_LPS22HB.h>
+#include <Arduino_LSM9DS1.h>
+#include <SPI.h>
+#include <SD.h>
+
+
+File dataFile;
+
+
+float temperoff = -30; //온도 오차범위 (수정 필요)
+
+
+void setup() {
+  Serial.begin(9600);
+
+
+  if (!HTS.begin()) {
+    Serial.println("온도 센서 초기화 실패");
+    return;
+  }
+
+
+  if (!BARO.begin()) {
+    Serial.println("대기압 센서 초기화 실패");
+    return;
+  }
+
+
+  if (!IMU.begin()) {
+    Serial.println("IMU(가속도) 초기화 실패");
+    return;
+  }
+
+
+  if (!SD.begin(4)) {
+   Serial.println("SD 카드 초기화 실패");
+   return;
+   }
+}
+
+
+void loop() {
+  float temper = HTS.readTemperature()+ temperoff;
+  float press = BARO.readPressure() * 10;
+  float x, y, z;
+  float ppm = analogRead(A2);
+
+
+  Serial.print("CO2 (PPM) = ");
+  Serial.println(ppm);
+
+
+  Serial.print("Pressure (hPa) = ");
+  Serial.println(press);
+
+
+
+
+  Serial.print("temperature (°C) = ");
+  Serial.println(temper);
+
+
+
+
+  IMU.readAcceleration(x, y, z);
+  Serial.print(x);
+  Serial.print('\t');
+  Serial.print(y);
+  Serial.print('\t');
+  Serial.println(z);
+
+
+  Serial.println();
+
+
+  saveData(ppm, press, temper, x, y, z);
+
+
+  delay(1000);
+}
+
+
+void saveData(float ppm, float temper, float press, float x, float y, float z) {
+  File dataFile = SD.open("data.csv", FILE_WRITE);
+
+
+  if (dataFile) {
+    dataFile.print(ppm);
+    dataFile.print(",");
+    dataFile.print(temper / 10);
+    dataFile.print(",");
+    dataFile.print(press);
+    dataFile.print(",");
+    dataFile.print(x);
+    dataFile.print(",");
+    dataFile.print(y);
+    dataFile.print(",");
+    dataFile.println(z);
+ 
+    dataFile.close();
+
+
+    Serial.println("데이터 저장 완료");
+  } else {
+    Serial.println("파일 열기 실패");
+  }
+}
