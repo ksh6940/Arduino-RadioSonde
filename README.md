@@ -10,4 +10,4 @@
 
 ## Other matters
 ### If you have any questions, please send them to the email below.
-→ gsh6940@naver.com (or makeplayer12@gmail.com)
+→ gsh6940@naver.com
