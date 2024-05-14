@@ -8,7 +8,7 @@
 File dataFile;
 
 
-float temperoff = -30; //온도 오차범위 (수정 필요)
+float temperoff = -4.5; //온도 오차범위 (수정 필요)
 
 
 void setup() {
@@ -37,51 +37,55 @@ void setup() {
    Serial.println("SD 카드 초기화 실패");
    return;
    }
+
+   Serial.print("Accelerometer sample rate = ");
+  Serial.print(IMU.accelerationSampleRate());
+  Serial.println(" Hz");
+  Serial.println();
+  Serial.println("Acceleration in g's");
+  Serial.println("X\tY\tZ");
 }
 
 
 void loop() {
   float temper = HTS.readTemperature()+ temperoff;
   float press = BARO.readPressure() * 10;
-  float x, y, z;
-  float ppm = analogRead(A2);
+  float x, y, z; // Variables to store acceleration values
 
+  // Read CO2 concentration (assuming A2 is connected to a CO2 sensor)
+  float ppm = analogRead(A2);
 
   Serial.print("CO2 (PPM) = ");
   Serial.println(ppm);
 
-
   Serial.print("Pressure (hPa) = ");
   Serial.println(press);
 
-
-
-
-  Serial.print("temperature (°C) = ");
+  Serial.print("Temperature (°C) = ");
   Serial.println(temper);
 
+  // Read acceleration values for x, y, and z axes
+  if (IMU.accelerationAvailable()) {
+    IMU.readAcceleration(x, y, z);
+    Serial.print("Acceleration (g): ");
+    Serial.print("X: "); 
+    Serial.print(x); 
+    Serial.print("\t");
+    Serial.print("Y: ");
+    Serial.print(y); 
+    Serial.print("\t");
+    Serial.print("Z: "); 
+    Serial.println(z); 
+  }
 
-
-
-  IMU.readAcceleration(x, y, z);
-  Serial.print(x);
-  Serial.print('\t');
-  Serial.print(y);
-  Serial.print('\t');
-  Serial.println(z);
-
-
-  Serial.println();
-
-
-  saveData(ppm, press, temper, x, y, z);
-
+  // Save sensor data to the SD card
+  saveData(ppm, temper, press, z);
 
   delay(1000);
 }
 
 
-void saveData(float ppm, float temper, float press, float x, float y, float z) {
+void saveData(float ppm, float temper, float press, float z) {
   File dataFile = SD.open("data.csv", FILE_WRITE);
 
 
@@ -91,10 +95,6 @@ void saveData(float ppm, float temper, float press, float x, float y, float z) {
     dataFile.print(temper / 10);
     dataFile.print(",");
     dataFile.print(press);
-    dataFile.print(",");
-    dataFile.print(x);
-    dataFile.print(",");
-    dataFile.print(y);
     dataFile.print(",");
     dataFile.println(z);
  
