@@ -36,7 +36,7 @@ void setup() {
 void loop() {
   float temper = HTS.readTemperature()+ temperoff;
   float press = BARO.readPressure() * 10;
-    float ppm = analogRead(A2);
+  float ppm = analogRead(A2);
 
   Serial.print("CO2 (PPM) = ");
   Serial.println(ppm);
@@ -64,6 +64,7 @@ void saveData(float ppm, float temper, float press) {
     dataFile.print(temper / 10);
     dataFile.print(",");
     dataFile.print(press);
+    dataFile.print(",");
     dataFile.close();
 
     Serial.println("데이터 저장 완료");
