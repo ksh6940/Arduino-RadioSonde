@@ -1,6 +1,5 @@
 #include <Arduino_HTS221.h>
 #include <Arduino_LPS22HB.h>
-#include <Arduino_LSM9DS1.h>
 #include <SPI.h>
 #include <SD.h>
 
@@ -27,33 +26,17 @@ void setup() {
   }
 
 
-  if (!IMU.begin()) {
-    Serial.println("IMU(가속도) 초기화 실패");
-    return;
-  }
-
-
   if (!SD.begin(4)) {
    Serial.println("SD 카드 초기화 실패");
    return;
    }
-
-   Serial.print("Accelerometer sample rate = ");
-  Serial.print(IMU.accelerationSampleRate());
-  Serial.println(" Hz");
-  Serial.println();
-  Serial.println("Acceleration in g's");
-  Serial.println("X\tY\tZ");
 }
 
 
 void loop() {
   float temper = HTS.readTemperature()+ temperoff;
   float press = BARO.readPressure() * 10;
-  float x, y, z; // Variables to store acceleration values
-
-  // Read CO2 concentration (assuming A2 is connected to a CO2 sensor)
-  float ppm = analogRead(A2);
+    float ppm = analogRead(A2);
 
   Serial.print("CO2 (PPM) = ");
   Serial.println(ppm);
@@ -64,28 +47,14 @@ void loop() {
   Serial.print("Temperature (°C) = ");
   Serial.println(temper);
 
-  // Read acceleration values for x, y, and z axes
-  if (IMU.accelerationAvailable()) {
-    IMU.readAcceleration(x, y, z);
-    Serial.print("Acceleration (g): ");
-    Serial.print("X: "); 
-    Serial.print(x); 
-    Serial.print("\t");
-    Serial.print("Y: ");
-    Serial.print(y); 
-    Serial.print("\t");
-    Serial.print("Z: "); 
-    Serial.println(z); 
-  }
-
   // Save sensor data to the SD card
-  saveData(ppm, temper, press, z);
+  saveData(ppm, temper, press);
 
   delay(1000);
 }
 
 
-void saveData(float ppm, float temper, float press, float z) {
+void saveData(float ppm, float temper, float press) {
   File dataFile = SD.open("data.csv", FILE_WRITE);
 
 
@@ -95,11 +64,7 @@ void saveData(float ppm, float temper, float press, float z) {
     dataFile.print(temper / 10);
     dataFile.print(",");
     dataFile.print(press);
-    dataFile.print(",");
-    dataFile.println(z);
- 
     dataFile.close();
-
 
     Serial.println("데이터 저장 완료");
   } else {
